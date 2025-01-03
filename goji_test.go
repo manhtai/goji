@@ -2,6 +2,7 @@ package goji
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"testing"
 )
@@ -9,8 +10,22 @@ import (
 func TestWithMatcher(t *testing.T) {
 	exp := boolMatcher(true)
 	ctx := WithMatcher(context.Background(), exp)
-	if m := ctx.Value(matcherKey).(Matcher); m != exp {
+	if m := Match(ctx); m != exp {
 		t.Errorf("expected %+v, got: %+v", exp, m)
+	}
+}
+
+func TestWithMatcherRawPath(t *testing.T) {
+	spec := NewPathSpec("/hello/:name")
+	ctxSpec := WithMatcher(context.Background(), spec)
+	m := Match(ctxSpec)
+
+	if m != spec {
+		t.Errorf("expected %+v, got: %+v", spec, m)
+	}
+
+	if fmt.Sprint(m) != "/hello/:name" {
+		t.Errorf("expected /hello/:name, got: %+v", m)
 	}
 }
 

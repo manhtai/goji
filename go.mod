@@ -1,3 +1,3 @@
-module github.com/kenshaw/goji
+module github.com/manhtai/goji
 
 go 1.13

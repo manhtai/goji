@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/kenshaw/goji"
+	"github.com/manhtai/goji"
 )
 
 func main() {

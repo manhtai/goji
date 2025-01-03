@@ -66,3 +66,12 @@ func Path(ctx context.Context) string {
 func Param(req *http.Request, name string) string {
 	return req.Context().Value(nameKey(name)).(string)
 }
+
+// Match returns the last matched Matcher from the context.
+func Match(ctx context.Context) Matcher {
+	if m := ctx.Value(matcherKey); m != nil {
+		return m.(Matcher)
+	}
+
+	return nil
+}

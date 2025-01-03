@@ -30,7 +30,7 @@ type Matcher interface {
 // with bindings in newer contexts overriding values deeper in the stack. The
 // concrete type
 //
-// 	map[nameKey]interface{}
+//	map[nameKey]interface{}
 //
 // is used for this purpose. If no variables are bound, nil should be returned
 // instead of an empty map.
@@ -97,32 +97,32 @@ func (p pathSpecNames) Swap(i, j int) {
 // PathSpec provides a Matcher that matches requests routes based on named path
 // components, storing matched path components in the request context.
 //
-// Quick Reference
+// # Quick Reference
 //
 // The following table gives an overview of the language this package accepts. See
 // the subsequent sections for a more detailed explanation of what each path
 // does.
 //
-// 	Path			Matches			Does Not Match
+//	Path			Matches			Does Not Match
 //
-// 	/			/			/hello
+//	/			/			/hello
 //
-// 	/hello			/hello			/hi
-// 							/hello/
+//	/hello			/hello			/hi
+//							/hello/
 //
-// 	/user/:name		/user/carl		/user/carl/photos
-// 				/user/alice		/user/carl/
-// 							/user/
+//	/user/:name		/user/carl		/user/carl/photos
+//				/user/alice		/user/carl/
+//							/user/
 //
-// 	/:file.:ext		/data.json		/.json
-// 				/info.txt		/data.
-// 				/data.tar.gz		/data.json/download
+//	/:file.:ext		/data.json		/.json
+//				/info.txt		/data.
+//				/data.tar.gz		/data.json/download
 //
-// 	/user/*			/user/			/user
-// 				/user/carl
-// 				/user/carl/photos
+//	/user/*			/user/			/user
+//				/user/carl
+//				/user/carl/photos
 //
-// Static Paths
+// # Static Paths
 //
 // Most URL paths may be specified directly: the pattern "/hello" matches URLs with
 // precisely that path ("/hello/", for instance, is treated as distinct).
@@ -131,7 +131,7 @@ func (p pathSpecNames) Swap(i, j int) {
 // documentation for net/url.URL.EscapedPath). In order to match a character that
 // can appear escaped in a URL path, use its percent-encoded form.
 //
-// Named Matches
+// # Named Matches
 //
 // Named matches allow URL paths to contain any value in a particular path segment.
 // Such matches are denoted by a leading ":", for example ":name" in the rule
@@ -155,7 +155,7 @@ func (p pathSpecNames) Swap(i, j int) {
 // "/data.tar.gz", with "ext" getting set to "tar.gz"; and the pattern "/:file"
 // matches names with dots in them (like "data.json").
 //
-// Prefix Matches
+// # Prefix Matches
 //
 // Pat can also match prefixes of routes using wildcards. Prefix wildcard routes
 // end with "/*", and match just the path segments preceding the asterisk. For
