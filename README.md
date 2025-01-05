@@ -1,6 +1,6 @@
 # About Goji
 
-[![GoDoc](https://godoc.org/goji.io?status.svg)](https://godoc.org/goji.io) [![Build Status](https://travis-ci.org/goji/goji.svg?branch=master)](https://travis-ci.org/goji/goji)
+[![Test](https://github.com/manhtai/goji/actions/workflows/test.yml/badge.svg)](https://github.com/manhtai/goji/actions/workflows/test.yml)
 
 Goji is a HTTP request multiplexer, similar to [`net/http.ServeMux`][servemux].
 It compares incoming requests to a list of registered [Patterns][pattern], and
