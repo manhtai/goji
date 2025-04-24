@@ -11,25 +11,29 @@ func TestMuxHandlerInterface(t *testing.T) {
 }
 
 func TestMuxExistingPath(t *testing.T) {
-	m := New()
-	m.HandleFunc(boolMatcher(true), func(res http.ResponseWriter, req *http.Request) {
-		if path := req.Context().Value(pathKey).(string); path != "/" {
-			t.Errorf("expected path=/, got %q", path)
-		}
-	})
-	res, req := resreq()
-	m.ServeHTTP(res, req.WithContext(context.WithValue(context.Background(), pathKey, "/hello")))
+	for _, b := range []bool{true, false} {
+		m := New(WithFlatten(b))
+		m.HandleFunc(boolMatcher(true), func(res http.ResponseWriter, req *http.Request) {
+			if path := req.Context().Value(pathKey).(string); path != "/" {
+				t.Errorf("expected path=/, got %q", path)
+			}
+		})
+		res, req := resreq()
+		m.ServeHTTP(res, req.WithContext(context.WithValue(context.Background(), pathKey, "/hello")))
+	}
 }
 
 func TestSubMuxExistingPath(t *testing.T) {
-	m := NewSubMux()
-	m.HandleFunc(boolMatcher(true), func(res http.ResponseWriter, req *http.Request) {
-		if path := req.Context().Value(pathKey).(string); path != "/hello" {
-			t.Errorf("expected path=/hello, got %q", path)
-		}
-	})
-	res, req := resreq()
-	m.ServeHTTP(res, req.WithContext(context.WithValue(context.Background(), pathKey, "/hello")))
+	for _, b := range []bool{true, false} {
+		m := NewSubMux(WithFlatten(b))
+		m.HandleFunc(boolMatcher(true), func(res http.ResponseWriter, req *http.Request) {
+			if path := req.Context().Value(pathKey).(string); path != "/hello" {
+				t.Errorf("expected path=/hello, got %q", path)
+			}
+		})
+		res, req := resreq()
+		m.ServeHTTP(res, req.WithContext(context.WithValue(context.Background(), pathKey, "/hello")))
+	}
 }
 
 func TestMiddleware(t *testing.T) {

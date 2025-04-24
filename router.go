@@ -9,7 +9,7 @@ import (
 
 // Router is the shared router interface.
 type Router interface {
-	Handle(Matcher, http.Handler)
+	Handle(Matcher, http.Handler, bool)
 	Route(*http.Request) *http.Request
 }
 
@@ -41,7 +41,28 @@ type router struct {
 	wildcard trieNode
 }
 
-func (r *router) Handle(matcher Matcher, handler http.Handler) {
+func (r *router) Handle(matcher Matcher, handler http.Handler, flatten bool) {
+	if flatten {
+		// Flatten the routes of the sub-mux
+		if subMux, ok := handler.(*Mux); ok && matcher.Prefix() != "" {
+			for _, route := range subMux.router.(*router).routes {
+				subSpec, ok := route.matcher.(*PathSpec)
+				if !ok {
+					continue
+				}
+
+				var methods []string
+				for method := range subSpec.Methods() {
+					methods = append(methods, method)
+				}
+
+				subMatcher := NewPathSpec(matcher.Prefix()+subSpec.raw[1:], WithMethod(methods...))
+				r.Handle(subMatcher, route.handler, true)
+			}
+			return
+		}
+	}
+
 	i := len(r.routes)
 	r.routes = append(r.routes, route{matcher: matcher, handler: handler})
 

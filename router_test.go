@@ -17,7 +17,7 @@ func TestNoMatch(t *testing.T) {
 	for _, r := range []Router{&router{}, &simpleRouter{}} {
 		r.Handle(boolMatcher(false), http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			t.Fatal("did not expect handler to be called")
-		}))
+		}), true)
 		_, req := resreq()
 		ctx := context.Background()
 		ctx = context.WithValue(ctx, matcherKey, boolMatcher(true))
@@ -71,7 +71,7 @@ func TestRouter(t *testing.T) {
 			i := i
 			p.index = i
 			p.mark = mark
-			r.Handle(p, intHandler(i))
+			r.Handle(p, intHandler(i), true)
 		}
 
 		tests := []struct {
@@ -132,7 +132,7 @@ func TestRouter(t *testing.T) {
 
 func TestRouterContextPropagation(t *testing.T) {
 	for _, r := range []Router{&router{}, &simpleRouter{}} {
-		r.Handle(contextMatcher{}, intHandler(0))
+		r.Handle(contextMatcher{}, intHandler(0), true)
 		_, req := resreq()
 		req = req.WithContext(context.WithValue(req.Context(), pathKey, "/"))
 		req2 := r.Route(req)
@@ -145,7 +145,7 @@ func TestRouterContextPropagation(t *testing.T) {
 // simpleRouter is a correct router implementation in its simplest form.
 type simpleRouter []route
 
-func (sr *simpleRouter) Handle(matcher Matcher, handler http.Handler) {
+func (sr *simpleRouter) Handle(matcher Matcher, handler http.Handler, b bool) {
 	*sr = append(*sr, route{
 		matcher: matcher,
 		handler: handler,

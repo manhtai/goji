@@ -24,6 +24,7 @@ type Mux struct {
 	middleware []func(http.Handler) http.Handler
 	notFound   http.Handler
 	sub        bool
+	flatten    bool
 }
 
 // New returns a new Mux with no configured middleware using the default
@@ -74,34 +75,34 @@ func (m *Mux) buildChain() {
 // For instance, given middleware A, B, and C, added in that order, Goji will
 // behave similarly to this snippet:
 //
-// 	augmentedHandler := A(B(C(yourHandler)))
-// 	augmentedHandler.ServeHTTP(res, req)
+//	augmentedHandler := A(B(C(yourHandler)))
+//	augmentedHandler.ServeHTTP(res, req)
 //
 // Assuming each of A, B, and C look something like this:
 //
-// 	func A(inner http.Handler) http.Handler {
-// 		log.Print("A: called")
-// 		mw := func(res http.ResponseWriter, req *http.Request) {
-// 			log.Print("A: before")
-// 			inner.ServeHTTP(res, req)
-// 			log.Print("A: after")
-// 		}
-// 		return http.HandlerFunc(mw)
-// 	}
+//	func A(inner http.Handler) http.Handler {
+//		log.Print("A: called")
+//		mw := func(res http.ResponseWriter, req *http.Request) {
+//			log.Print("A: before")
+//			inner.ServeHTTP(res, req)
+//			log.Print("A: after")
+//		}
+//		return http.HandlerFunc(mw)
+//	}
 //
 // we'd expect to see the following in the log:
 //
-// 	C: called
-// 	B: called
-// 	A: called
-// 	---
-// 	A: before
-// 	B: before
-// 	C: before
-// 	yourHandler: called
-// 	C: after
-// 	B: after
-// 	A: after
+//	C: called
+//	B: called
+//	A: called
+//	---
+//	A: before
+//	B: before
+//	C: before
+//	yourHandler: called
+//	C: after
+//	B: after
+//	A: after
 //
 // Note that augmentedHandler will called many times, producing the log output
 // below the divider, while the outer middleware functions (the log output
@@ -131,20 +132,20 @@ func (m *Mux) Use(middleware func(http.Handler) http.Handler) {
 // routing is performed in a manner that is indistinguishable from the following
 // algorithm:
 //
-// 	// Assume routes is a slice that every call to Handle appends to
-// 	for _, route := range routes {
-// 		// For performance, Matchers can opt out of this call to Match.
-// 		// See the documentation for Matcher for more.
-// 		if req2 := route.pattern.Match(req); req2 != nil {
-// 			route.handler.ServeHTTP(res, req2)
-// 			break
-// 		}
-// 	}
+//	// Assume routes is a slice that every call to Handle appends to
+//	for _, route := range routes {
+//		// For performance, Matchers can opt out of this call to Match.
+//		// See the documentation for Matcher for more.
+//		if req2 := route.pattern.Match(req); req2 != nil {
+//			route.handler.ServeHTTP(res, req2)
+//			break
+//		}
+//	}
 //
 // It is not safe to concurrently register routes from multiple goroutines, or to
 // register routes concurrently with requests.
 func (m *Mux) Handle(matcher Matcher, handler http.Handler) {
-	m.router.Handle(matcher, handler)
+	m.router.Handle(matcher, handler, m.flatten)
 }
 
 // HandleFunc adds a new route to the Mux. It is equivalent to calling Handle on a
@@ -167,6 +168,12 @@ type MuxOption func(*Mux)
 // SubMux is a mux option to toggle the mux a sub mux.
 func SubMux(m *Mux) {
 	m.sub = true
+}
+
+func WithFlatten(flatten bool) MuxOption {
+	return func(m *Mux) {
+		m.flatten = flatten
+	}
 }
 
 // NotFound is a mux option to set  not found (404) handler.
