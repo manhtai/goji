@@ -53,13 +53,10 @@ func (r *router) Handle(matcher Matcher, handler http.Handler, flatten bool) {
 
 				matcherRaw := matcher.Raw()
 				if strings.HasSuffix(matcherRaw, "/*") {
-					matcherRaw = matcherRaw[:len(matcherRaw)-1]
+					matcherRaw = strings.TrimSuffix(matcherRaw, "/*")
 				}
 
 				subMatcherRaw := route.matcher.Raw()
-				if strings.HasPrefix(matcherRaw, "/") {
-					subMatcherRaw = subMatcherRaw[1:]
-				}
 
 				subMatcher := NewPathSpec(
 					matcherRaw+subMatcherRaw,

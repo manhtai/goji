@@ -33,6 +33,7 @@ func New(opts ...MuxOption) *Mux {
 	m := &Mux{
 		router:   new(router),
 		notFound: http.HandlerFunc(http.NotFound),
+		flatten:  true,
 	}
 	for _, o := range opts {
 		o(m)
