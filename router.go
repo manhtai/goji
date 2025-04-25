@@ -51,7 +51,21 @@ func (r *router) Handle(matcher Matcher, handler http.Handler, flatten bool) {
 					methods = append(methods, method)
 				}
 
-				subMatcher := NewPathSpec(matcher.Raw()[:len(matcher.Raw())-1]+route.matcher.Raw()[1:], WithMethod(methods...))
+				matcherRaw := matcher.Raw()
+				if strings.HasSuffix(matcherRaw, "/*") {
+					matcherRaw = matcherRaw[:len(matcherRaw)-1]
+				}
+
+				subMatcherRaw := route.matcher.Raw()
+				if strings.HasPrefix(matcherRaw, "/") {
+					subMatcherRaw = subMatcherRaw[1:]
+				}
+
+				subMatcher := NewPathSpec(
+					matcherRaw+subMatcherRaw,
+					WithMethod(methods...),
+				)
+
 				r.Handle(subMatcher, route.handler, true)
 			}
 			return
