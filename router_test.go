@@ -176,6 +176,7 @@ func (b boolMatcher) Match(req *http.Request) *http.Request {
 
 func (b boolMatcher) Prefix() string               { return "" }
 func (b boolMatcher) Methods() map[string]struct{} { return nil }
+func (b boolMatcher) Raw() string                  { return "" }
 
 func resreq() (*httptest.ResponseRecorder, *http.Request) {
 	req, err := http.NewRequest("GET", "/", nil)
@@ -191,6 +192,8 @@ type testMatcher struct {
 	methods []string
 	prefix  string
 }
+
+func (t testMatcher) Raw() string { return t.prefix }
 
 func (t testMatcher) Match(r *http.Request) *http.Request {
 	ctx := r.Context()
@@ -232,6 +235,7 @@ func (contextMatcher) Match(req *http.Request) *http.Request {
 
 func (contextMatcher) Prefix() string               { return "" }
 func (contextMatcher) Methods() map[string]struct{} { return nil }
+func (contextMatcher) Raw() string                  { return "" }
 
 type intHandler int
 

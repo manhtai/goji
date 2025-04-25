@@ -46,17 +46,12 @@ func (r *router) Handle(matcher Matcher, handler http.Handler, flatten bool) {
 		// Flatten the routes of the sub-mux
 		if subMux, ok := handler.(*Mux); ok && matcher.Prefix() != "" {
 			for _, route := range subMux.router.(*router).routes {
-				subSpec, ok := route.matcher.(*PathSpec)
-				if !ok {
-					continue
-				}
-
 				var methods []string
-				for method := range subSpec.Methods() {
+				for method := range route.matcher.Methods() {
 					methods = append(methods, method)
 				}
 
-				subMatcher := NewPathSpec(matcher.Prefix()+subSpec.raw[1:], WithMethod(methods...))
+				subMatcher := NewPathSpec(matcher.Raw()[:len(matcher.Raw())-1]+route.matcher.Raw()[1:], WithMethod(methods...))
 				r.Handle(subMatcher, route.handler, true)
 			}
 			return

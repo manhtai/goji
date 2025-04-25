@@ -23,6 +23,9 @@ type Matcher interface {
 	// contain the returned string as a prefix are guaranteed to never match
 	// this Matcher.
 	Prefix() string
+
+	// Raw return original path spec.
+	Raw() string
 }
 
 // allNames is a standard value which, when passed to
@@ -306,6 +309,10 @@ func (p *PathSpec) Methods() map[string]struct{} {
 // Prefix returns the prefix for requests that the path spec matches.
 func (p *PathSpec) Prefix() string {
 	return p.literals[0]
+}
+
+func (p *PathSpec) Raw() string {
+	return p.raw
 }
 
 // String satisfies fmt.Stringer interface.
