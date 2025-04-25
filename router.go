@@ -44,7 +44,7 @@ type router struct {
 func (r *router) Handle(matcher Matcher, handler http.Handler, flatten bool) {
 	if flatten {
 		// Flatten the routes of the sub-mux
-		if subMux, ok := handler.(*Mux); ok && matcher.Prefix() != "" {
+		if subMux, ok := handler.(*Mux); ok {
 			for _, route := range subMux.router.(*router).routes {
 				var methods []string
 				for method := range route.matcher.Methods() {
@@ -63,7 +63,12 @@ func (r *router) Handle(matcher Matcher, handler http.Handler, flatten bool) {
 					WithMethod(methods...),
 				)
 
-				r.Handle(subMatcher, route.handler, true)
+				h := route.handler
+				for i := len(subMux.middleware) - 1; i >= 0; i-- {
+					h = subMux.middleware[i](h)
+				}
+
+				r.Handle(subMatcher, h, true)
 			}
 			return
 		}
